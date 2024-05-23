@@ -81,7 +81,6 @@ export const fundWallet = async (
   amount: number,
   user_id: number,
 ) => {
-  console.log('fund');
   const wallet = await db
     .selectFrom('wallet.Wallet')
     .selectAll()
