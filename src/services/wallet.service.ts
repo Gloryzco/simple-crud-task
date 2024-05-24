@@ -64,16 +64,20 @@ export const chargeWallet = async (
 export const deleteWallet = async (wallet_id: number, user_id: number) => {
   const wallet = await db
     .selectFrom('wallet.Wallet')
+    .selectAll()
     .where('id', '=', wallet_id)
     .where('wallet.Wallet.userId', '=', user_id)
-    .selectAll()
     .executeTakeFirst();
 
   if (!wallet) {
     throw new AppError('Wallet not found or does not belong to the user', 404);
   }
 
-  return wallet;
+  await db
+    .deleteFrom('wallet.Wallet')
+    .where('id', '=', wallet_id)
+    .where('wallet.Wallet.userId', '=', user_id)
+    .execute();
 };
 
 export const fundWallet = async (
@@ -91,7 +95,8 @@ export const fundWallet = async (
   if (!wallet) {
     throw new AppError('Wallet not found or does not belong to the user', 404);
   }
-  const newBalance = wallet.balance ? wallet.balance + amount : 0.0;
+  const newBalance = wallet.balance + amount;
+  console.log(newBalance);
 
   const fundWallet = await db
     .updateTable('wallet.Wallet')
