@@ -7,7 +7,7 @@ const dialect = new PostgresDialect({
     database: 'wallet_service',
     host: 'localhost',
     user: 'postgres',
-    password: 'GMajor123?',
+    password: '',
     port: 5432,
     max: 10,
   }), 
