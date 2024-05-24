@@ -18,7 +18,7 @@ This is a basic CRUD API built with Node.js, PostgreSQL, Prisma, Kyseley, Zod, a
 - `DELETE /:id`: Delete wallet.
 
 ## Usage
-1. Run the server: `npm start`.
+1. Run the server: `npm run start`.
 2. Send requests to the endpoints using tools like Postman.
 
 ## Author
