@@ -11,6 +11,7 @@ This is a basic CRUD API built with Node.js, PostgreSQL, Prisma, Kyseley, Zod, a
 
 ## Endpoints
 - `POST /users`: Create a new user.
+- `POST /wallet`: Create a new wallet.
 - `GET /user/:id/wallet`: Get wallet by ID.
 - `PUT /wallet/:id/charge`: Charge wallet.
 - `PUT /wallet/:id/fund`: Fund wallet.
