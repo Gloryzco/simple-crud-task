@@ -1,9 +1,8 @@
-import { CreateWalletDTO } from './../dtos/wallet.dto';
+// Import necessary dependencies and modules
+import { Decimal } from '@prisma/client/runtime/library';
 import { db } from '../database';
 import AppError from '../shared/utils/AppError';
 import dateCreated from '../shared/utils/helper';
-import { WalletTable } from 'shared/interfaces/wallet.interface';
-import { SimpleConsoleLogger } from 'typeorm';
 
 export async function getByUserId(user_id: number) {
   const wallet = await db
@@ -11,18 +10,30 @@ export async function getByUserId(user_id: number) {
     .where('userId', '=', user_id)
     .select(['id', 'userId', 'balance'])
     .executeTakeFirst();
+
   if (!wallet) {
-    throw new AppError('Wallet not found', 404);
+    throw new AppError('Wallet or user not found', 404);
   }
 
   return wallet;
 }
 
-export const createWallet = async (userId: number) => {
+export const createWallet = async (user_id: number) => {
   const date = dateCreated();
+  const user = await getUserById(user_id);
+
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
   const result = await db
     .insertInto('wallet.Wallet')
-    .values({ userId, balance: 0.0, createdAt: date, updatedAt: date })
+    .values({
+      userId: user_id,
+      balance: 0,
+      createdAt: date,
+      updatedAt: date,
+    })
     .returning(['id', 'userId', 'balance', 'createdAt'])
     .executeTakeFirst();
 
@@ -34,57 +45,43 @@ export const chargeWallet = async (
   amount: number,
   user_id: number,
 ) => {
-  const wallet = await db
-    .selectFrom('wallet.Wallet')
-    .selectAll()
-    .where('id', '=', wallet_id)
-    .where('wallet.Wallet.userId', '=', user_id)
-    .executeTakeFirst();
+  const wallet = await getWalletById(wallet_id, user_id);
 
-  console.log('waller_id', wallet_id);
   if (!wallet) {
     throw new AppError('Wallet not found or user does not exist', 404);
   }
+
+  const initialBalance = new Decimal(wallet.balance);
+  const decimalAmount = new Decimal(amount);
+  const newBalance = initialBalance.minus(decimalAmount);
+  const updatedBalanceNumber = newBalance.toNumber();
 
   if (amount > wallet.balance) {
     throw new AppError('Insufficient balance', 402);
   }
-  const newBalance = wallet.balance - amount;
 
-  const chargeWallet = await db
+  const updatedWallet = await db
     .updateTable('wallet.Wallet')
-    .set({ balance: newBalance })
+    .set({ balance: updatedBalanceNumber })
     .where('id', '=', wallet_id)
     .returning(['userId', 'balance'])
     .execute();
 
-  return chargeWallet;
+  return updatedWallet;
 };
 
 export const getBalance = async (wallet_id: number, user_id: number) => {
-  const wallet = await db
-    .selectFrom('wallet.Wallet')
-    .selectAll()
-    .where('id', '=', wallet_id)
-    .where('wallet.Wallet.userId', '=', user_id)
-    .executeTakeFirst();
+  const wallet = await getWalletById(wallet_id, user_id);
 
   if (!wallet) {
     throw new AppError('Wallet not found or user does not exist', 404);
   }
-  console.log('sss');
-  console.log(wallet.balance);
 
   return wallet.balance;
 };
 
 export const deleteWallet = async (wallet_id: number, user_id: number) => {
-  const wallet = await db
-    .selectFrom('wallet.Wallet')
-    .selectAll()
-    .where('id', '=', wallet_id)
-    .where('wallet.Wallet.userId', '=', user_id)
-    .executeTakeFirst();
+  const wallet = await getWalletById(wallet_id, user_id);
 
   if (!wallet) {
     throw new AppError('Wallet not found or does not belong to the user', 404);
@@ -93,7 +90,7 @@ export const deleteWallet = async (wallet_id: number, user_id: number) => {
   await db
     .deleteFrom('wallet.Wallet')
     .where('id', '=', wallet_id)
-    .where('wallet.Wallet.userId', '=', user_id)
+    .where('userId', '=', user_id)
     .execute();
 };
 
@@ -102,28 +99,46 @@ export const fundWallet = async (
   amount: number,
   user_id: number,
 ) => {
-  const wallet = await db
-    .selectFrom('wallet.Wallet')
-    .selectAll()
-    .where('id', '=', wallet_id)
-    .where('wallet.Wallet.userId', '=', user_id)
-    .executeTakeFirst();
+  const wallet = await getWalletById(wallet_id, user_id);
 
   if (!wallet) {
     throw new AppError('Wallet not found or does not belong to the user', 404);
   }
-  const newBalance = wallet.balance + amount;
-  console.log(newBalance);
+  const initialBalance = new Decimal(wallet.balance);
+  const decimalAmount = new Decimal(amount);
+  const newBalance = initialBalance.plus(decimalAmount);
+  const updatedBalanceNumber = newBalance.toNumber();
 
-  const fundWallet = await db
+  const updatedWallet = await db
     .updateTable('wallet.Wallet')
-    .set({ balance: newBalance })
+    .set({ balance: updatedBalanceNumber })
     .where('id', '=', wallet_id)
     .returning(['userId', 'balance'])
     .execute();
 
-  return fundWallet;
+  return updatedWallet;
+
 };
+
+async function getWalletById(wallet_id: number, user_id: number) {
+  const wallet = await db
+    .selectFrom('wallet.Wallet')
+    .selectAll()
+    .where('id', '=', wallet_id)
+    .where('userId', '=', user_id)
+    .executeTakeFirst();
+
+  return wallet;
+}
+
+async function getUserById(user_id: number) {
+  const user = await db
+    .selectFrom('wallet.User')
+    .where('id', '=', user_id)
+    .executeTakeFirst();
+
+  return user;
+}
 
 const walletService = {
   getByUserId,
