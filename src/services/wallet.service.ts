@@ -1,4 +1,3 @@
-// Import necessary dependencies and modules
 import { Decimal } from '@prisma/client/runtime/library';
 import { db } from '../database';
 import AppError from '../shared/utils/AppError';
