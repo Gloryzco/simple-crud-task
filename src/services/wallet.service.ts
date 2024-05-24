@@ -4,6 +4,8 @@ import { db } from '../database';
 import AppError from '../shared/utils/AppError';
 import dateCreated from '../shared/utils/helper';
 
+const date = dateCreated();
+
 export async function getByUserId(user_id: number) {
   const wallet = await db
     .selectFrom('wallet.Wallet')
@@ -19,7 +21,6 @@ export async function getByUserId(user_id: number) {
 }
 
 export const createWallet = async (user_id: number) => {
-  const date = dateCreated();
   const user = await getUserById(user_id);
 
   if (!user) {
@@ -62,7 +63,7 @@ export const chargeWallet = async (
 
   const updatedWallet = await db
     .updateTable('wallet.Wallet')
-    .set({ balance: updatedBalanceNumber })
+    .set({ balance: updatedBalanceNumber, updatedAt: date})
     .where('id', '=', wallet_id)
     .returning(['userId', 'balance'])
     .execute();
@@ -108,16 +109,14 @@ export const fundWallet = async (
   const decimalAmount = new Decimal(amount);
   const newBalance = initialBalance.plus(decimalAmount);
   const updatedBalanceNumber = newBalance.toNumber();
-
   const updatedWallet = await db
     .updateTable('wallet.Wallet')
-    .set({ balance: updatedBalanceNumber })
+    .set({ balance: updatedBalanceNumber, updatedAt: date })
     .where('id', '=', wallet_id)
     .returning(['userId', 'balance'])
     .execute();
 
   return updatedWallet;
-
 };
 
 async function getWalletById(wallet_id: number, user_id: number) {
