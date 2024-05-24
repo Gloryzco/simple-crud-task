@@ -61,6 +61,23 @@ export const chargeWallet = async (
   return chargeWallet;
 };
 
+export const getBalance = async (wallet_id: number, user_id: number) => {
+  const wallet = await db
+    .selectFrom('wallet.Wallet')
+    .selectAll()
+    .where('id', '=', wallet_id)
+    .where('wallet.Wallet.userId', '=', user_id)
+    .executeTakeFirst();
+
+  if (!wallet) {
+    throw new AppError('Wallet not found or user does not exist', 404);
+  }
+  console.log('sss');
+  console.log(wallet.balance);
+
+  return wallet.balance;
+};
+
 export const deleteWallet = async (wallet_id: number, user_id: number) => {
   const wallet = await db
     .selectFrom('wallet.Wallet')
@@ -114,6 +131,7 @@ const walletService = {
   chargeWallet,
   fundWallet,
   deleteWallet,
+  getBalance,
 };
 
 export default walletService;

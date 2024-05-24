@@ -6,7 +6,7 @@ import config from "./core/config/config";
 const httpServer = http.createServer(app);
 
 // Start the server
-const port = config.port || 3033;
+const port = config.app_port || 3033;
 // const port = config.port;
 httpServer.listen(port, async () => {
   console.warn(`Server started at port: ${port}`);
