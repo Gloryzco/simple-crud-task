@@ -12,8 +12,8 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Wallet" (
     "id" SERIAL NOT NULL,
-    "balance" DOUBLE PRECISION NOT NULL,
-    "currency" TEXT,
+    "balance" DECIMAL(10,2) NOT NULL DEFAULT 0,
+    "currency" TEXT NOT NULL DEFAULT 'NGN',
     "userId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
