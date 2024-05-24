@@ -7,18 +7,18 @@ This is a basic CRUD API built with Node.js, PostgreSQL, Prisma, Kyseley, Zod, a
 1. Clone this repository.
 2. Install dependencies: `npm install`.
 3. Set up your PostgreSQL database and add connection string to `.env`.
-4. Run Prisma migrations: `npx prisma migrate dev --name init`.
-5. Generate Prisma Client: `npx prisma generate`.
+4. Run Prisma migrations: `npx prisma migrate dev`.
 
 ## Endpoints
 - `POST /users`: Create a new user.
-- `GET /users/:id`: Get user by ID.
-- `PUT /users/:id`: Update user by ID.
-- `DELETE /users/:id`: Delete user by ID.
+- `GET /user/:id/wallet`: Get wallet by ID.
+- `PUT /wallet/:id/charge`: Charge wallet.
+- `PUT /wallet/:id/fund`: Fund wallet.
+- `DELETE /:id`: Delete wallet.
 
 ## Usage
 1. Run the server: `npm start`.
-2. Send requests to the endpoints using tools like Postman or cURL.
+2. Send requests to the endpoints using tools like Postman.
 
 ## Author
-Your Name
+Glory A.
