@@ -46,8 +46,6 @@ const charge = catchAsync(
   ): Promise<Response | any> => {
     const { amount, user_id } = req.body;
     const { id } = req.params;
-    console.log(id);
-    console.log(req);
     const data = await walletService.chargeWallet(
       parseInt(id),
       amount,
@@ -56,6 +54,27 @@ const charge = catchAsync(
     ResponseFormat.successResponse(
       res,
       'wallet charged successfully',
+      data,
+      200,
+    );
+  },
+);
+
+const getBalance = catchAsync(
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | any> => {
+    const { user_id } = req.body;
+    const { id } = req.params;
+    const data = await walletService.getBalance(
+      parseInt(id),
+      user_id,
+    );
+    ResponseFormat.successResponse(
+      res,
+      'Balance fetched successfully',
       data,
       200,
     );
@@ -108,6 +127,7 @@ const walletController = {
   charge,
   fund,
   remove,
+  getBalance,
 };
 
 export default walletController;

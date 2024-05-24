@@ -49,9 +49,9 @@ const globalErrorHandler = (err, req: Request, res: Response, next: NextFunction
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
 
-    if (config.app_env === 'production') {
+    if (config.app_env === 'development') {
         sendErrorDev(err, res);
-    } else if (config.app_env === 'development') {
+    } else if (config.app_env === 'production') {
         let error = { ...err };
 
         if (error.name === 'CastError') error = handleCastErrorDB(err);
